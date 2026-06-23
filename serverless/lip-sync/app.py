@@ -6,7 +6,7 @@ Uses Wav2Lip model (https://github.com/Rudrabha/Wav2Lip)
 Model auto-downloads on first run from public URL.
 """
 
-import os, io, base64, uuid, tempfile, subprocess, requests as req
+import os, io, base64, uuid, tempfile, subprocess, sys, requests as req
 from flask import Flask, request, jsonify
 import numpy as np
 import cv2
@@ -129,5 +129,8 @@ def generate():
 
 
 if __name__ == '__main__':
-    import sys
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    logger.info(f'[Wav2Lip] Starting on port 8080, CUDA: {torch.cuda.is_available()}')
     app.run(host='0.0.0.0', port=8080, debug=False)

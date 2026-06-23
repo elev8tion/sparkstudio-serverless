@@ -2,7 +2,7 @@
 # MusicGen-Small — text prompt → short audio / ambient / SFX
 # Deploy on Novita Serverless GPU (RTX 3090, ~$0.26/hr)
 
-FROM --platform=linux/amd64 pytorch/pytorch:2.3.0-cuda12.1-cudnn8-runtime
+FROM --platform=linux/amd64 pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
 
 WORKDIR /app
 
@@ -17,4 +17,4 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD curl -f http://localhos
 
 EXPOSE 8080
 
-CMD ["python", "app.py"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "1", "--timeout", "300", "app:app"]

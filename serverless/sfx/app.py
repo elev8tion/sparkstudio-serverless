@@ -1,14 +1,17 @@
 """
 MusicGen SFX Server
 POST /generate — text prompt → ambient audio / sound effect
-Uses facebook/musicgen-small — auto-downloads on first request.
+Uses facebook/musicgen-small — auto-downloads on first generate request.
 """
 
-import os, io, base64, uuid
+import os, io, base64, uuid, logging
 from flask import Flask, request, jsonify
 import torch
 import torchaudio
 from transformers import pipeline
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 _pipe = None
@@ -17,20 +20,21 @@ _pipe = None
 def load_model():
     global _pipe
     if _pipe is None:
+        logger.info('[MusicGen] Loading model (first request, ~2GB download)...')
         device = 0 if torch.cuda.is_available() else -1
+        logger.info(f'[MusicGen] CUDA available: {torch.cuda.is_available()}, using device: {device}')
         _pipe = pipeline(
             'text-to-audio',
             model='facebook/musicgen-small',
             device=device,
         )
-        print(f'[MusicGen] Loaded on {"GPU" if device == 0 else "CPU"}')
+        logger.info(f'[MusicGen] Loaded on {"GPU" if device == 0 else "CPU"}')
     return _pipe
 
 
 @app.route('/health', methods=['GET'])
 def health():
-    load_model()
-    return jsonify({'status': 'ok', 'model': 'musicgen-sfx'})
+    return jsonify({'status': 'ok', 'model': 'musicgen-sfx', 'gpu': torch.cuda.is_available()})
 
 
 @app.route('/generate', methods=['POST'])
