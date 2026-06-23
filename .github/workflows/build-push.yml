@@ -1,0 +1,48 @@
+name: Build & Push Serverless Containers
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'serverless/**'
+      - '.github/workflows/build-push.yml'
+  workflow_dispatch:  # manual trigger from GitHub UI
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        container:
+          - name: sparkstudio-lipsync
+            context: ./serverless/lip-sync
+            file: ./serverless/lip-sync/Dockerfile
+            tags: anomaly13/sparkstudio-lipsync:latest
+          - name: sparkstudio-sfx
+            context: ./serverless/sfx
+            file: ./serverless/sfx/Dockerfile
+            tags: anomaly13/sparkstudio-sfx:latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push ${{ matrix.container.name }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.container.context }}
+          file: ${{ matrix.container.file }}
+          push: true
+          tags: ${{ matrix.container.tags }}
+          platforms: linux/amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

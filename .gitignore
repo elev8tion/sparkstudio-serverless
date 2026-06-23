@@ -1,0 +1,18 @@
+# SparkStudio Serverless Containers — CI repo
+# Only the serverless Dockerfiles and CI workflow are tracked.
+# The full SparkStudio app runs locally from ~/SparkStudio-novita.
+
+# Ignore everything by default
+/*
+
+# Allow only what CI needs
+!/.github/
+!.github/
+!.github/**
+!.gitignore
+!README_SERVERLESS.md
+!serverless/
+!serverless/**
+
+# Ignore macOS clutter
+.DS_Store

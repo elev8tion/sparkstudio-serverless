@@ -1,0 +1,9 @@
+torch>=2.1.0
+torchaudio>=2.1.0
+transformers>=4.38.0
+accelerate>=0.25.0
+huggingface_hub>=0.20.0
+scipy>=1.11.0
+flask>=3.0.0
+gunicorn>=21.0.0
+requests>=2.31.0
